@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createCompetencia } from "@/lib/store";
+import {colors} from "@/lib/theme";
 
 export default function NewCompetencia() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function NewCompetencia() {
   const [fis, setFis] = useState(mk());
   const [psi, setPsi] = useState(mk());
 
-  const add = (list: any[], setList: any) => list.length < 3 && setList([...list, { id: () => `${Date.now()}-${Math.floor(Math.random() * 1e6)}`, text: "" }]);
+  const add = (list: any[], setList: any) => list.length < 3 && setList([...list, { id: Date.now().toString(), text: "" }]);
   const chg = (list: any[], setList: any, id: string, val: string) => setList(list.map(i => i.id===id? { ...i, text: val.slice(0,20) }: i));
 
   // Step 3
@@ -94,6 +95,6 @@ function Group({ title, list, setList, add, chg }: any) {
 
 const input: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #ddd' };
 const ta: React.CSSProperties = { width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 10 };
-const btn: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #333', background: '#111', color: 'white', width: '100%' };
+const btn: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #333', background: colors.primary, color: colors.secondary, width: '100%' };
 const btnGhost: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #ddd', background: '#fff', width: '100%' };
 const chip: React.CSSProperties = { padding: '6px 10px', borderRadius: 999, border: '1px solid #ddd', background: '#fff' };
