@@ -140,7 +140,7 @@ export default function NewEvaluacion() {
             </div>
             <button
               onClick={() => competencias.length > 0 && setStep(2)}
-              style={{ ...btn, width: '100%', borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              style={{ ...btn, width: '100%', borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               disabled={competencias.length === 0}
             >
               Siguiente
@@ -154,13 +154,13 @@ export default function NewEvaluacion() {
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => setStep(1)}
-                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Atrás
               </button>
               <button
                 onClick={() => setStep(3)}
-                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Siguiente
               </button>
@@ -174,13 +174,13 @@ export default function NewEvaluacion() {
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => setStep(2)}
-                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Atrás
               </button>
               <button
                 onClick={() => setStep(4)}
-                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Siguiente
               </button>
@@ -239,13 +239,13 @@ export default function NewEvaluacion() {
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
               <button
                 onClick={() => setStep(3)}
-                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Atrás
               </button>
               <button
                 onClick={save}
-                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
               >
                 Guardar
               </button>

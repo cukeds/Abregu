@@ -26,8 +26,8 @@ export default function Competencias() {
               style={{
                 ...btn,
                 borderRadius: 999,
-                padding: '8px 14px',
-                fontSize: 14
+                padding: '6px 12px',
+                fontSize: 13
               }}
             >
               + Crear
@@ -37,8 +37,8 @@ export default function Competencias() {
               style={{
                 ...btnGhost,
                 borderRadius: 999,
-                padding: '8px 14px',
-                fontSize: 14
+                padding: '6px 12px',
+                fontSize: 13
               }}
             >
               Mis competencias

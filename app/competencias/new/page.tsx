@@ -55,7 +55,7 @@ export default function NewCompetencia() {
           <textarea value={objGeneral} onChange={(e) => setObjGeneral(e.target.value)} placeholder="Objetivo general" style={ta} rows={4} />
           <button
             onClick={() => setStep(2)}
-            style={{ ...btn, width: '100%', borderRadius: 999, padding: '8px 14px', fontSize: 14 }}
+            style={{ ...btn, width: '100%', borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
           >
             Siguiente
           </button>
@@ -70,13 +70,13 @@ export default function NewCompetencia() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => setStep(1)}
-              style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 14px', fontSize: 14 }}
+              style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
             >
               Atrás
             </button>
             <button
               onClick={() => setStep(3)}
-              style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 14px', fontSize: 14 }}
+              style={{ ...btn, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
             >
               Siguiente
             </button>
@@ -90,13 +90,13 @@ export default function NewCompetencia() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => setStep(2)}
-              style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 14px', fontSize: 14 }}
+              style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
             >
               Atrás
             </button>
             <button
               onClick={save}
-              style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 14px', fontSize: 14 }}
+              style={{ ...btn, flex: 1, borderRadius: 999, padding: '6px 12px', fontSize: 13 }}
             >
               Guardar
             </button>
