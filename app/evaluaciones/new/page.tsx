@@ -1,109 +1,258 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { createEvaluacion } from "@/lib/store";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import {
+  listCompetencias,
+  createEvaluacion,
+  type Competencia
+} from '@/lib/store';
+import { btn, btnGhost, input, ta, colors } from '@/lib/theme';
+import Header from '@/components/Header';
 
-const NIVELS = ["Ansiedad", "Energía", "Confianza", "Enfoque"];
-const ESTADOS = ["Flow", "Tensión", "Fatiga", "Motivación"];
-
-export default function NewEval() {
+/**
+ * Wizard page to create a new competition evaluation.  Guides the user through
+ * selecting the competition, entering results, rating emotional levels and
+ * states, and assigning dedication percentages.  Results are persisted via
+ * localStorage using the store helper.
+ */
+export default function NewEvaluacion() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [competencias, setCompetencias] = useState<Competencia[]>([]);
+  useEffect(() => setCompetencias(listCompetencias()), []);
+  // Step 1: pick competition, result, date
+  const [selectedComp, setSelectedComp] = useState<string>('');
+  const [resultado, setResultado] = useState('');
+  const [fecha, setFecha] = useState<string>(new Date().toISOString().slice(0, 10));
+  // Step 2: emotional levels (niveles) 1–10
+  const nivelesKeys = ['Motivación', 'Confianza', 'Ansiedad', 'Concentración'];
+  const [niveles, setNiveles] = useState<Record<string, number>>({});
+  // Step 3: emotional states (estados) 1–10
+  const estadosKeys = ['Físico', 'Mental', 'Emocional', 'Social'];
+  const [estados, setEstados] = useState<Record<string, number>>({});
+  // Step 4: dedication percentages per area
+  const [tec, setTec] = useState<number>(0);
+  const [tac, setTac] = useState<number>(0);
+  const [fis, setFis] = useState<number>(0);
+  const [psi, setPsi] = useState<number>(0);
 
-  // Page 1
-  const [resultado, setResultado] = useState("");
-  const [fecha, setFecha] = useState<string>(new Date().toISOString().slice(0,10));
-
-  // Page 2/3
-  const [niveles, setNiveles] = useState<Record<string, number>>(() => Object.fromEntries(NIVELS.map(n=>[n,5])));
-  const [estados, setEstados] = useState<Record<string, number>>(() => Object.fromEntries(ESTADOS.map(n=>[n,5])));
-
-  // Page 4
-  const [tec, setTec] = useState(25);
-  const [tac, setTac] = useState(25);
-  const [fis, setFis] = useState(25);
-  const [psi, setPsi] = useState(25);
+  // Initialise selected competition once options load
+  useEffect(() => {
+    if (!selectedComp && competencias.length > 0) {
+      setSelectedComp(competencias[0].id);
+    }
+  }, [competencias, selectedComp]);
 
   const save = () => {
-    createEvaluacion({ resultado, fecha, niveles, estados, dedicacion: { tecnicos: tec, tacticos: tac, fisicos: fis, psicologicos: psi } });
-    router.replace('/dashboard');
+    const comp = competencias.find((c) => c.id === selectedComp);
+    if (!comp) return;
+    createEvaluacion({
+      competenciaId: comp.id,
+      competenciaTitle: comp.title,
+      resultado,
+      fecha,
+      niveles,
+      estados,
+      dedicacion: {
+        tecnicos: tec,
+        tacticos: tac,
+        fisicos: fis,
+        psicologicos: psi
+      }
+    });
+    router.replace('/evaluaciones');
+  };
+
+  // Render helper for 1–10 radio inputs
+  const renderScale = (keys: string[], values: Record<string, number>, setValues: any) => {
+    return keys.map((name) => (
+      <div key={name} style={{ marginBottom: 12 }}>
+        <div style={{ marginBottom: 4, color: colors.primary, fontWeight: 500 }}>{name}</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+            <label key={n} style={{ fontSize: 12, textAlign: 'center', flex: 1 }}>
+              <input
+                type="radio"
+                name={name}
+                value={n}
+                checked={values[name] === n}
+                onChange={() => setValues({ ...values, [name]: n })}
+                style={{ marginBottom: 4 }}
+              />
+              {n}
+            </label>
+          ))}
+        </div>
+      </div>
+    ));
   };
 
   return (
-    <main style={{ padding: 20 }}>
-      <h2 style={{ fontSize: 22, marginBottom: 10 }}>Evaluación de Competencia</h2>
-      <div style={{ color: '#666', fontSize: 13, marginBottom: 10 }}>Paso {step} de 4</div>
-
-      {step===1 && (
-        <div style={{ display: 'grid', gap: 10 }}>
-          <textarea value={resultado} onChange={e=>setResultado(e.target.value)} placeholder="Resultado" style={ta} rows={4} />
-          <input value={fecha} onChange={e=>setFecha(e.target.value)} type="date" style={input} />
-          <button onClick={()=>setStep(2)} style={btn}>Siguiente</button>
-        </div>
-      )}
-
-      {step===2 && (
-        <section>
-          <h3>Niveles emocionales (1-10)</h3>
-          <ScaleList values={niveles} setValues={setNiveles} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            <button onClick={()=>setStep(1)} style={btnGhost}>Atrás</button>
-            <button onClick={()=>setStep(3)} style={btn}>Siguiente</button>
+    <>
+      <Header title="Nueva Evaluación" />
+      <main
+        style={{
+          padding: 20,
+          minHeight: 'calc(100dvh - 48px)',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <div style={{ color: '#666', fontSize: 13, marginBottom: 10 }}>Paso {step} de 4</div>
+        {step === 1 && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, color: colors.primary }}>Competencia</label>
+              {competencias.length === 0 ? (
+                <p style={{ color: '#777' }}>Crea una competencia primero.</p>
+              ) : (
+                <select
+                  value={selectedComp}
+                  onChange={(e) => setSelectedComp(e.target.value)}
+                  style={{ ...input, width: '100%' }}
+                >
+                  {competencias.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, color: colors.primary }}>Resultado</label>
+              <textarea
+                value={resultado}
+                onChange={(e) => setResultado(e.target.value)}
+                placeholder="Descripción del resultado"
+                style={ta}
+                rows={4}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, color: colors.primary }}>Fecha</label>
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                style={input}
+              />
+            </div>
+            <button
+              onClick={() => competencias.length > 0 && setStep(2)}
+              style={{ ...btn, width: '100%', borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              disabled={competencias.length === 0}
+            >
+              Siguiente
+            </button>
           </div>
-        </section>
-      )}
-
-      {step===3 && (
-        <section>
-          <h3>Estados (1-10)</h3>
-          <ScaleList values={estados} setValues={setEstados} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            <button onClick={()=>setStep(2)} style={btnGhost}>Atrás</button>
-            <button onClick={()=>setStep(4)} style={btn}>Siguiente</button>
+        )}
+        {step === 2 && (
+          <div style={{ display: 'grid', gap: 16 }}>
+            <h3 style={{ margin: 0, color: colors.primary }}>Nivel emocional (1‑10)</h3>
+            {renderScale(nivelesKeys, niveles, setNiveles)}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setStep(1)}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Atrás
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
-        </section>
-      )}
-
-      {step===4 && (
-        <section style={{ display: 'grid', gap: 10 }}>
-          <h3>Porcentaje de dedicación</h3>
-          <Slider label="Técnicos" value={tec} setValue={setTec} />
-          <Slider label="Tácticos" value={tac} setValue={setTac} />
-          <Slider label="Físicos" value={fis} setValue={setFis} />
-          <Slider label="Psicológicos" value={psi} setValue={setPsi} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            <button onClick={()=>setStep(3)} style={btnGhost}>Atrás</button>
-            <button onClick={save} style={btn}>Guardar</button>
+        )}
+        {step === 3 && (
+          <div style={{ display: 'grid', gap: 16 }}>
+            <h3 style={{ margin: 0, color: colors.primary }}>Estado (1‑10)</h3>
+            {renderScale(estadosKeys, estados, setEstados)}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setStep(2)}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Atrás
+              </button>
+              <button
+                onClick={() => setStep(4)}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
-        </section>
-      )}
-    </main>
+        )}
+        {step === 4 && (
+          <div style={{ display: 'grid', gap: 12 }}>
+            <h3 style={{ margin: 0, color: colors.primary }}>Dedicación (%)</h3>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ flex: 1, color: colors.primary }}>Técnicos</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={tec}
+                  onChange={(e) => setTec(Number(e.target.value))}
+                  style={{ ...input, width: 80 }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ flex: 1, color: colors.primary }}>Tácticos</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={tac}
+                  onChange={(e) => setTac(Number(e.target.value))}
+                  style={{ ...input, width: 80 }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ flex: 1, color: colors.primary }}>Físicos</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={fis}
+                  onChange={(e) => setFis(Number(e.target.value))}
+                  style={{ ...input, width: 80 }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ flex: 1, color: colors.primary }}>Psicológicos</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={psi}
+                  onChange={(e) => setPsi(Number(e.target.value))}
+                  style={{ ...input, width: 80 }}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button
+                onClick={() => setStep(3)}
+                style={{ ...btnGhost, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Atrás
+              </button>
+              <button
+                onClick={save}
+                style={{ ...btn, flex: 1, borderRadius: 999, padding: '8px 16px', fontSize: 14 }}
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+    </>
   );
 }
-
-function ScaleList({ values, setValues }:{ values: Record<string, number>, setValues: (v: any)=>void }) {
-  return (
-    <div style={{ display: 'grid', gap: 12 }}>
-      {Object.entries(values).map(([k,v])=> (
-        <div key={k}>
-          <label style={{ fontSize: 13 }}>{k}: {v}</label>
-          <input type="range" min={1} max={10} value={v} onChange={e=>setValues({ ...values, [k]: Number(e.target.value) })} style={{ width: '100%' }} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Slider({ label, value, setValue }:{ label: string, value: number, setValue: (n:number)=>void }) {
-  return (
-    <div>
-      <label style={{ fontSize: 13 }}>{label}: {value}%</label>
-      <input type="range" min={0} max={100} value={value} onChange={e=>setValue(Number(e.target.value))} style={{ width: '100%' }} />
-    </div>
-  );
-}
-
-const input: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #ddd' };
-const ta: React.CSSProperties = { width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: 10 };
-const btn: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #333', background: '#111', color: 'white', width: '100%' };
-const btnGhost: React.CSSProperties = { padding: '12px 14px', borderRadius: 10, border: '1px solid #ddd', background: '#fff', width: '100%' };
